@@ -1,5 +1,7 @@
 package com.vklonin.rest.webservices.restfulwebservices.user;
 
+import com.vklonin.rest.webservices.restfulwebservices.exception.InsufficientDataException;
+import com.vklonin.rest.webservices.restfulwebservices.exception.UserNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,6 +24,9 @@ public class UserDaoService {
     }
 
     public User save(User user){
+//        if(user.getBirthDate()==null || user.getName().equals("") ) {
+//            throw new InsufficientDataException("insufficient data ubd or name");
+//        }
         if(user.getId()==null){
             user.setId(++usersCount);
         }
@@ -29,7 +34,20 @@ public class UserDaoService {
         return user;
     }
     public User findOne(int id){
-        return users.stream().filter(user -> user.getId() == id).collect(Collectors.toList()).get(0);
+        List<User> usersList = UserDaoService.users.stream().filter(user -> user.getId() == id).collect(Collectors.toList());
+         if(usersList.isEmpty()){
+             throw new UserNotFoundException("id-" + id);
+         }else{return usersList.get(0);}
     }
 
+    public String deleteOne(int id) {
+        List<User> usersList = UserDaoService.users.stream().filter(user -> user.getId() == id).collect(Collectors.toList());
+        if(usersList.isEmpty()){
+            throw new UserNotFoundException("id-" + id);
+        }else{
+            users.remove(id-1);
+            return "User deleted id-"+id;
+        }
+
+    }
 }
